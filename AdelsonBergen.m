@@ -1,7 +1,7 @@
 % Converting this to a function while keeping as many parameters similar as
 % possible
 
-function [energy_right, energy_left, total_energy, resp_simple_slow, resp_simple_fast] = AdelsonBergen(stim,max_x,nx,max_t,nt)
+function [energy_opponent, total_energy, resp_simple, resp_dir] = AdelsonBergen(stim,max_x,nx,max_t,nt)
 
 % Implementation of the Adelson & Bergen (1985) motion energy model.
 % Example Matlab code by George Mather, University of Sussex, UK, 2010.
@@ -66,15 +66,18 @@ left_1=o_fast+e_slow;      % L1
 left_2=-o_slow+e_fast;     % L2
 right_1=-o_fast+e_slow;    % R1
 right_2=o_slow+e_fast;     % R2
+
 %--------------------------------------------------------------------------
 %         STEP 3: Convolve the filters with a stimulus
 %--------------------------------------------------------------------------
 
 % Step 3c: convolve
 
-% Simple Cell Responses
-resp_simple_slow=conv2(stim,e_slow,'same');
-resp_simple_fast=conv2(stim,e_fast,'same');
+% Simple Cell Responses - choose one
+resp_simple = conv2(stim,e_fast,'same');
+
+% Directional Responses - show L1
+resp_dir = conv2(stim,left_1,'same');
 
 % Rightward responses
 resp_right_1=conv2(stim,right_1,'same');
@@ -123,4 +126,5 @@ motion_energy = right_Total - left_Total;
 % Display motion energy statistic
 fprintf('\n\nNet motion energy = %g\n\n',motion_energy);
 
+energy_opponent = energy_right - energy_left; % L-R difference matrix
 end
