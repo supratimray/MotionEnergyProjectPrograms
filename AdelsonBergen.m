@@ -1,7 +1,7 @@
 % Converting this to a function while keeping as many parameters similar as
 % possible
 
-function [energy_opponent, total_energy, resp_simple, resp_dir] = AdelsonBergen(stim,max_x,nx,max_t,nt)
+function [energy_opponent, total_energy, resp_simple, resp_dir] = AdelsonBergen(stim,max_x,nx,max_t,nt,nonlinType)
 
 % Implementation of the Adelson & Bergen (1985) motion energy model.
 % Example Matlab code by George Mather, University of Sussex, UK, 2010.
@@ -75,6 +75,13 @@ right_2=o_slow+e_fast;     % R2
 
 % Simple Cell Responses - choose one
 resp_simple = conv2(stim,e_fast,'same');
+if strcmp(nonlinType,'square')
+    resp_simple = resp_simple.^2;
+elseif strcmp(nonlinType,'fullWaveRect')
+    resp_simple = abs(resp_simple);
+elseif strcmp(nonlinType,'halfWaveRect')
+    resp_simple(resp_simple<0) = 0; 
+end
 
 % Directional Responses - show L1
 resp_dir = conv2(stim,left_1,'same');

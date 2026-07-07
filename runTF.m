@@ -1,7 +1,9 @@
-function targetVals = runTF(targetFlag)
+function targetVals = runTF(targetFlag,nonlinType)
 
-hERPs = subplot('Position',[0.75 0.05 0.2 0.4]);
-hFFTs = subplot('Position',[0.75 0.5 0.2 0.4]);
+hERPs = subplot('Position',[0.75 0.65 0.2 0.3]);
+hFFTs = subplot('Position',[0.75 0.3 0.2 0.3]);
+hTargets = subplot('Position',[0.75 0.05 0.2 0.2]);
+
 hPlots2(1) = hERPs;
 hPlots2(2) = hFFTs;
 
@@ -15,7 +17,14 @@ nt=100;         % Number of temporal samples in the filter
 max_t=0.5;      % Duration of impulse response (sec)
 dt = max_t/nt;  % Temporal sampling interval (sec)
 
-tfList = 2:2:28; targetFreq = 15;
+tfList = 2:2:28; targetFreq = 16;
+
+if isempty(nonlinType)
+    fftFreq = targetFreq;
+else
+    fftFreq = 2*targetFreq;
+end
+
 numTFs = length(tfList);
 colorNames = jet(numTFs);
 
@@ -37,11 +46,13 @@ for i=1:numTFs
         stim = stim+stimTask;
     end
 
-    [energy_opponent, total_energy, resp_simple, resp_dir] = AdelsonBergen(stim,max_x,nx,max_t,nt);
+    [energy_opponent, total_energy, resp_simple, resp_dir] = AdelsonBergen(stim,max_x,nx,max_t,nt,nonlinType);
 
     hPlots(i,:) = getPlots([0.05 0.05+(i-1)*deltaY 0.65 deltaY-gapY],0.02);
     plotModelResponses(hPlots(i,:),stim,x_stim,t_stim,energy_opponent,total_energy,resp_simple,resp_dir,colorNames(i,:),targetFreq);
-    targetVals(i) = plotTimeAndFreqResponse(hPlots2,t_stim,resp_simple,colorNames(i,:),targetFreq);
+    targetVals(i) = plotTimeAndFreqResponse(hPlots2,t_stim,resp_simple,colorNames(i,:),fftFreq);
+    disp(i);
+    pause;
 end
 
 for i=1:4
@@ -59,4 +70,8 @@ for i=5:6
 end
 for j=1:numTFs
     xlim(hPlots(j,6),[0 50]);
+end
+
+plot(hTargets,tfList,targetVals);
+
 end
